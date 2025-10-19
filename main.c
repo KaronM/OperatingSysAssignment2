@@ -1,4 +1,12 @@
 // TODO: add the appropriate head files here
+#include <sys/ipc.h>
+#include <sys/time.h>
+#include "lab2.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 /************************************************************\
  * get_arguments - returns the command line arguments not
@@ -41,6 +49,7 @@ int main(int argc, char** argv)
     
     // TODO: call ipc_create to create shared memory region to which parent
     //       child have access.
+    ipc_ptr = ipc_create(4096);
 
     /* fork a child process */
     pid = fork();
@@ -51,23 +60,33 @@ int main(int argc, char** argv)
     }
     else if (pid == 0) { /*child process */
         // TODO: use gettimeofday to log the start time
-
-        // TODO: write the time to the IPC
         
-        // TODO: get the list of arguments to be used in execvp() and 
-        // execute execvp()
+        gettimeofday(&start_time, NULL);
+        
+        // TODO: write the time to the IPC
+        memcpy(ipc_ptr, &start_time, sizeof(struct timeval));
+        
+        //printf("[child] start_time: %ld.%06ld\n", start_time.tv_sec, start_time.tv_usec);
 
+        // TODO: get the list of arguments to be used in execvp() and 
+        char** args = get_arguments(argc, argv);
+        // execute execvp()
+        execvp(args[0],args);
     }
     else { /* parent process */
         // TODO: have parent wait and get status of child.
         //       Use the variable status to store status of child. 
-        
+        pid = wait(&status);
         // TODO: get the current time using gettimeofday
-        
+        gettimeofday(&current_time,NULL);
         // TODO: read the start time from IPC
-        
-        // TODO: close IPC
-
+        memcpy(&start_time, ipc_ptr, sizeof(struct timeval));
+        /*
+        printf("[parent] read start_time: %ld.%06ld\n", start_time.tv_sec, start_time.tv_usec);
+        printf("[parent] current_time   : %ld.%06ld\n", current_time.tv_sec, current_time.tv_usec);
+        */
+        //close IPC
+        ipc_close();
         // NOTE: DO NOT ALTER THE LINE BELOW.
         printf("Elapsed time %.5f\n",elapsed_time(&start_time, &current_time));
     }

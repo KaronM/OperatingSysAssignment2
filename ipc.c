@@ -1,5 +1,8 @@
 // TODO: add the appropriate header files here
-
+#include <sys/ipc.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 /**************************************************************
  *  ipc_create - creates a shared memory object called lab2 and
@@ -16,11 +19,13 @@ char* ipc_create(int size){
     char* ptr;
 
     // TODO: create the shared memory object called lab2
+    fd = shm_open("lab2",O_CREAT | O_RDWR, 0666);
 
     // TODO: configure the size of the shared memory object 
+    ftruncate(fd,size);
 
     // TODO: memory map the shared memory object */
-
+    ptr = mmap(0,size,PROT_READ | PROT_WRITE, MAP_SHARED, fd,0);
     return ptr;
 }
 
