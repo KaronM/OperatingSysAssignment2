@@ -2,7 +2,6 @@
 #include <sys/ipc.h>
 #include <sys/time.h>
 #include "lab2.h"
-#include "time.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
